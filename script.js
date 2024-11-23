@@ -1,28 +1,29 @@
 // Initialize map
-const map = L.map('map'); // No need to set view yet; we will center based on the GeoJSON
+const map = L.map('map').setView([27.7, 85.4], 13); // Adjust based on your dataset
 
 // Add a tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// Load GeoJSON data
-fetch('data/kolvi_1.json')
-  .then(response => response.json())
-  .then(data => {
-    // Add GeoJSON layer to the map
-    const parcels = L.geoJSON(data, {
-      style: {
-        color: "#999",
-        weight: 1,
-      }
-    }).addTo(map);
+// Load .kmz file
+fetch('data/kolvi_1.kmz')
+  .then(response => response.arrayBuffer())
+  .then(buffer => {
+    return JSZip.loadAsync(buffer); // Extract KMZ using JSZip
+  })
+  .then(zip => {
+    const kmlFile = Object.keys(zip.files).find(file => file.endsWith('.kml')); // Find the KML file
+    return zip.files[kmlFile].async('string'); // Extract the KML content
+  })
+  .then(kmlText => {
+    const kmlLayer = new L.KML(kmlText); // Parse the KML
+    map.addLayer(kmlLayer);
 
-    // Automatically center the map based on the GeoJSON's bounding box
-    const bounds = parcels.getBounds();
-    map.fitBounds(bounds);
+    // Fit map bounds to KML layer
+    map.fitBounds(kmlLayer.getBounds());
 
-    // Query form functionality
+    // Optional: Query form functionality
     document.getElementById('query-form').addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -30,10 +31,10 @@ fetch('data/kolvi_1.json')
       const wardno = document.getElementById('wardno').value;
       const parcelno = document.getElementById('parcelno').value;
 
-      // Highlight the selected parcel
-      parcels.eachLayer(layer => {
-        const props = layer.feature.properties;
+      kmlLayer.eachLayer(layer => {
+        const props = layer.feature?.properties;
         if (
+          props &&
           props.vdc === vdc &&
           props.wardno === wardno &&
           props.parcelno === parcelno
@@ -51,4 +52,7 @@ fetch('data/kolvi_1.json')
         }
       });
     });
+  })
+  .catch(err => {
+    console.error('Error loading KMZ file:', err);
   });
