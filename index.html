@@ -1,46 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parcel Web Map with KMZ</title>
-  
-  <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  
-  <!-- JSZip for extracting KMZ -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-  
-  <!-- Leaflet-KML plugin -->
-  <script src="https://unpkg.com/leaflet-kml/L.KML.min.js"></script>
-  
-  <!-- CSS for styling -->
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Parcel Map</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-  <div id="app">
-    <div id="sidebar">
-      <h1>Query Parcels</h1>
-      <form id="query-form">
-        <label for="vdc">VDC:</label>
-        <input type="text" id="vdc" name="vdc" placeholder="Enter VDC">
-        
-        <label for="wardno">Ward No:</label>
-        <input type="text" id="wardno" name="wardno" placeholder="Enter Ward No">
-        
-        <label for="parcelno">Parcel No:</label>
-        <input type="text" id="parcelno" name="parcelno" placeholder="Enter Parcel No">
-        
-        <button type="submit">Search</button>
-      </form>
+    <div id="search-bar">
+        <input type="text" id="vdc" placeholder="VDC">
+        <input type="text" id="wardno" placeholder="Ward No">
+        <input type="text" id="parcelno" placeholder="Parcel No">
+        <button id="search-btn">Search</button>
     </div>
     <div id="map"></div>
-  </div>
-  
-  <!-- Custom JS for loading KMZ and handling map logic -->
-  <script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
