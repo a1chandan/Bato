@@ -1,6 +1,10 @@
 let map = L.map('map').setView([27.7, 85.3], 12); // Initial placeholder view
 let geojsonLayer;
 
+// Store unique VDCs and Ward Nos
+const vdcSet = new Set();
+const wardnoSet = new Set();
+
 // Add OpenStreetMap tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
@@ -19,19 +23,44 @@ fetch('data/kolvi_1.json')
             onEachFeature: (feature, layer) => {
                 // Tooltip for parcel number
                 layer.bindTooltip(`Parcel No: ${feature.properties.parcelno}`);
+
+                // Collect unique VDCs and Ward Nos
+                vdcSet.add(feature.properties.vdc.trim());
+                wardnoSet.add(feature.properties.wardno.trim());
             },
         }).addTo(map);
+
+        // Populate the dropdowns after collecting data
+        populateDropdown('vdc', Array.from(vdcSet));
+        populateDropdown('wardno', Array.from(wardnoSet));
 
         // Zoom and center map to the extent of the entire GeoJSON on landing
         const geojsonBounds = geojsonLayer.getBounds();
         map.fitBounds(geojsonBounds);
     });
 
+// Function to populate dropdown options
+function populateDropdown(elementId, options) {
+    const select = document.getElementById(elementId);
+    options.sort(); // Sort options alphabetically or numerically
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option;
+        select.appendChild(opt);
+    });
+}
+
 // Add event listener for the search button
 document.getElementById('search-btn').addEventListener('click', () => {
-    const vdc = document.getElementById('vdc').value.trim();
+    const vdc = document.getElementById('vdc').value.trim().toLowerCase();
     const wardno = document.getElementById('wardno').value.trim();
     const parcelno = document.getElementById('parcelno').value.trim();
+
+    if (!vdc || !wardno || !parcelno) {
+        alert('Please fill in all fields!');
+        return;
+    }
 
     let parcelFound = false; // Flag to check if parcel is found
 
@@ -39,8 +68,14 @@ document.getElementById('search-btn').addEventListener('click', () => {
     geojsonLayer.eachLayer(layer => {
         const props = layer.feature.properties;
 
+        console.log('Checking parcel:', props); // Debugging: log properties
+
         // Check if the feature matches the query
-        if (props.vdc === vdc && props.wardno === wardno && props.parcelno === parcelno) {
+        if (
+            props.vdc.trim().toLowerCase() === vdc &&
+            props.wardno.trim() === wardno &&
+            props.parcelno.trim() === parcelno
+        ) {
             // Zoom to the parcel bounds and center it
             map.fitBounds(layer.getBounds());
             map.setView(layer.getBounds().getCenter(), 18); // Adjust zoom level as needed
