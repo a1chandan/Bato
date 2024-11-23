@@ -1,14 +1,19 @@
-let map = L.map('map').setView([27.7, 85.3], 12); // Default view
-let geojsonLayer, parcelLayer;
+// Initialize the map
+const map = L.map('map').setView([27.7, 85.3], 12); // Default view
 
+// Add a tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
 }).addTo(map);
 
-// Fetch GeoJSON and add to the map
+let geojsonLayer; // For all parcels
+let parcelLayer; // For the selected parcel
+
+// Load the GeoJSON file
 fetch('data/kolvi_1.json')
     .then(response => response.json())
     .then(data => {
+        // Add GeoJSON layer
         geojsonLayer = L.geoJSON(data, {
             style: {
                 color: '#cccccc',
@@ -19,36 +24,39 @@ fetch('data/kolvi_1.json')
             },
         }).addTo(map);
 
-        // Zoom to the GeoJSON layer extent at the start
+        // Zoom to the extent of all parcels
         map.fitBounds(geojsonLayer.getBounds());
     });
 
+// Search button click event
 document.getElementById('search-btn').addEventListener('click', () => {
     const vdc = document.getElementById('vdc').value.trim();
     const wardno = document.getElementById('wardno').value.trim();
     const parcelno = document.getElementById('parcelno').value.trim();
 
-    let found = false;
+    let found = false; // To track if the parcel is found
 
+    // Reset the previous selection if any
+    if (parcelLayer) {
+        map.removeLayer(parcelLayer);
+    }
+
+    // Search for the specific parcel
     geojsonLayer.eachLayer(layer => {
         const props = layer.feature.properties;
 
         if (props.vdc === vdc && props.wardno === wardno && props.parcelno === parcelno) {
             found = true;
 
-            // Highlight the selected parcel
-            if (parcelLayer) {
-                map.removeLayer(parcelLayer); // Remove previous highlight
-            }
-
+            // Highlight the selected parcel with black outline
             parcelLayer = L.geoJSON(layer.feature, {
                 style: {
-                    color: '#000000', // Black outline
+                    color: '#000000',
                     weight: 3,
                 },
             }).addTo(map);
 
-            // Add a label for the parcelno at the center of the parcel
+            // Add a label with parcel number at the center of the parcel
             const center = layer.getBounds().getCenter();
             L.marker(center, {
                 icon: L.divIcon({
