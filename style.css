@@ -12,7 +12,7 @@ body {
     align-items: center;
 }
 
-#search-bar select, #search-bar input {
+#search-bar input {
     padding: 5px;
     font-size: 14px;
     width: 150px;
