@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parcel Web Map</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div id="sidebar">
+      <h1>Query Parcels</h1>
+      <form id="query-form">
+        <label for="vdc">VDC:</label>
+        <input type="text" id="vdc" name="vdc" placeholder="Enter VDC">
+        
+        <label for="wardno">Ward No:</label>
+        <input type="text" id="wardno" name="wardno" placeholder="Enter Ward No">
+        
+        <label for="parcelno">Parcel No:</label>
+        <input type="text" id="parcelno" name="parcelno" placeholder="Enter Parcel No">
+        
+        <button type="submit">Search</button>
+      </form>
+    </div>
+    <div id="map"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
