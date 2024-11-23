@@ -9,12 +9,16 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <div id="search-bar">
-        <input type="text" id="vdc" placeholder="VDC">
-        <input type="text" id="wardno" placeholder="Ward No">
-        <input type="text" id="parcelno" placeholder="Parcel No">
-        <button id="search-btn">Search</button>
-    </div>
+<div id="search-bar">
+    <select id="vdc">
+        <option value="">Select VDC</option>
+    </select>
+    <select id="wardno">
+        <option value="">Select Ward No</option>
+    </select>
+    <input type="text" id="parcelno" placeholder="Parcel No">
+    <button id="search-btn">Search</button>
+</div>
     <div id="map"></div>
     <script src="script.js"></script>
 </body>
