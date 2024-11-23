@@ -1,5 +1,12 @@
-let map = L.map('map').setView([27.7, 85.3], 12); // Initial placeholder view
+let map = L.map('map').setView([27.7, 85.3], 12); // Default map view
 let geojsonLayer;
+
+// URL parameters for sharing
+const params = new URLSearchParams(window.location.search);
+
+// Store unique VDCs and Ward Nos
+const vdcSet = new Set();
+const wardnoSet = new Set();
 
 // Add OpenStreetMap tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -10,7 +17,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 fetch('data/kolvi_1.json')
     .then(response => response.json())
     .then(data => {
-        // Add the GeoJSON layer with initial faint styling
+        // Add GeoJSON layer to map
         geojsonLayer = L.geoJSON(data, {
             style: {
                 color: '#cccccc',
@@ -19,61 +26,95 @@ fetch('data/kolvi_1.json')
             onEachFeature: (feature, layer) => {
                 // Tooltip for parcel number
                 layer.bindTooltip(`Parcel No: ${feature.properties.parcelno}`);
+
+                // Collect unique VDCs and Ward Nos
+                vdcSet.add(feature.properties.vdc.trim());
+                wardnoSet.add(feature.properties.wardno.trim());
             },
         }).addTo(map);
 
-        // Zoom and center map to the extent of the entire GeoJSON on landing
+        // Populate dropdowns
+        populateDropdown('vdc', Array.from(vdcSet));
+        populateDropdown('wardno', Array.from(wardnoSet));
+
+        // Handle URL parameters
+        const vdcParam = params.get('vdc');
+        const wardnoParam = params.get('wardno');
+        const parcelnoParam = params.get('parcelno');
+
+        if (vdcParam && wardnoParam && parcelnoParam) {
+            highlightFeature(vdcParam, wardnoParam, parcelnoParam);
+        }
+
+        // Zoom to GeoJSON bounds on load
         const geojsonBounds = geojsonLayer.getBounds();
         map.fitBounds(geojsonBounds);
     });
 
-// Add event listener for the search button
-document.getElementById('search-btn').addEventListener('click', () => {
-    const vdc = document.getElementById('vdc').value.trim().toLowerCase();
-    const wardno = document.getElementById('wardno').value.trim();
-    const parcelno = document.getElementById('parcelno').value.trim();
+// Populate dropdowns dynamically
+function populateDropdown(elementId, options) {
+    const select = document.getElementById(elementId);
+    options.sort();
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option;
+        select.appendChild(opt);
+    });
+}
 
-    let parcelFound = false; // Flag to check if parcel is found
+// Highlight a feature based on search
+function highlightFeature(vdc, wardno, parcelno) {
+    let parcelFound = false;
 
-    // Iterate over each feature in the GeoJSON layer
     geojsonLayer.eachLayer(layer => {
         const props = layer.feature.properties;
 
-        console.log('Checking parcel:', props); // Debugging: log properties
-
-        // Check if the feature matches the query (case-insensitive for VDC)
         if (
-            props.vdc.trim().toLowerCase() === vdc &&
-            props.wardno.trim() === wardno &&
-            props.parcelno.trim() === parcelno
+            props.vdc.trim().toLowerCase() === vdc.trim().toLowerCase() &&
+            props.wardno.trim() === wardno.trim() &&
+            props.parcelno.trim() === parcelno.trim()
         ) {
-            // Zoom to the parcel bounds and center it
             map.fitBounds(layer.getBounds());
-            map.setView(layer.getBounds().getCenter(), 18); // Adjust zoom level as needed
+            map.setView(layer.getBounds().getCenter(), 18);
 
-            // Highlight the selected parcel with bold styling
+            // Highlight the selected feature
             layer.setStyle({
-                color: '#ff0000', // Highlight color
+                color: '#ff0000',
                 weight: 3,
             });
 
-            // Reset the style of other parcels to faint
-            geojsonLayer.eachLayer(otherLayer => {
-                if (otherLayer !== layer) {
-                    otherLayer.setStyle({
-                        color: '#cccccc',
-                        weight: 1,
-                    });
-                }
-            });
-
-            layer.bringToFront(); // Bring the selected parcel to the top
+            layer.bringToFront();
             parcelFound = true;
+        } else {
+            // Reset style for other features
+            layer.setStyle({
+                color: '#cccccc',
+                weight: 1,
+            });
         }
     });
 
-    // If no parcel matches the query, show an alert
     if (!parcelFound) {
         alert('No parcel found with the given query!');
     }
+}
+
+// Add search functionality
+document.getElementById('search-btn').addEventListener('click', () => {
+    const vdc = document.getElementById('vdc').value.trim();
+    const wardno = document.getElementById('wardno').value.trim();
+    const parcelno = document.getElementById('parcelno').value.trim();
+
+    if (!vdc || !wardno || !parcelno) {
+        alert('Please fill in all fields!');
+        return;
+    }
+
+    // Update URL with search parameters
+    const newParams = new URLSearchParams({ vdc, wardno, parcelno });
+    history.pushState({}, '', `?${newParams.toString()}`);
+
+    // Highlight the feature
+    highlightFeature(vdc, wardno, parcelno);
 });
