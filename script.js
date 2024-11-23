@@ -22,17 +22,17 @@ fetch('data/kolvi_1.json')
             },
             onEachFeature: (feature, layer) => {
                 // Tooltip for parcel number
-                layer.bindTooltip(`Parcel No: ${feature.properties.parcelno}`);
+                layer.bindTooltip(`Parcel No: ${feature.properties.PARCELNO}`);
 
                 // Collect unique VDCs and Ward Nos
-                vdcSet.add(feature.properties.vdc.trim());
-                wardnoSet.add(feature.properties.wardno.trim());
+                vdcSet.add(feature.properties.VDC.trim());
+                wardnoSet.add(feature.properties.WARDNO.trim());
             },
         }).addTo(map);
 
         // Populate the dropdowns after collecting data
-        populateDropdown('vdc', Array.from(vdcSet));
-        populateDropdown('wardno', Array.from(wardnoSet));
+        populateDropdown('VDC', Array.from(vdcSet));
+        populateDropdown('WARDNO', Array.from(wardnoSet));
 
         // Zoom and center map to the extent of the entire GeoJSON on landing
         const geojsonBounds = geojsonLayer.getBounds();
@@ -57,7 +57,7 @@ document.getElementById('search-btn').addEventListener('click', () => {
     const wardno = document.getElementById('wardno').value.trim();
     const parcelno = document.getElementById('parcelno').value.trim();
 
-    if (!vdc || !wardno || !parcelno) {
+    if (!VDC || !WARDNO || !PARCELNO) {
         alert('Please fill in all fields!');
         return;
     }
@@ -72,9 +72,9 @@ document.getElementById('search-btn').addEventListener('click', () => {
 
         // Check if the feature matches the query
         if (
-            props.vdc.trim().toLowerCase() === vdc &&
-            props.wardno.trim() === wardno &&
-            props.parcelno.trim() === parcelno
+            props.VDC.trim().toLowerCase() === vdc &&
+            props.WARDNO.trim() === wardno &&
+            props.PARCELNO.trim() === parcelno
         ) {
             // Zoom to the parcel bounds and center it
             map.fitBounds(layer.getBounds());
