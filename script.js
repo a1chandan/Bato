@@ -1,5 +1,5 @@
 // Initialize map
-const map = L.map('map').setView([27.7, 85.4], 13); // Adjust based on your dataset
+const map = L.map('map'); // Don't set view yet; we'll center based on the KMZ content
 
 // Add a tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -10,20 +10,23 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 fetch('data/kolvi_1.kmz')
   .then(response => response.arrayBuffer())
   .then(buffer => {
-    return JSZip.loadAsync(buffer); // Extract KMZ using JSZip
+    // Extract KMZ using JSZip
+    return JSZip.loadAsync(buffer);
   })
   .then(zip => {
-    const kmlFile = Object.keys(zip.files).find(file => file.endsWith('.kml')); // Find the KML file
-    return zip.files[kmlFile].async('string'); // Extract the KML content
+    // Find and extract the KML file from the KMZ archive
+    const kmlFile = Object.keys(zip.files).find(file => file.endsWith('.kml'));
+    return zip.files[kmlFile].async('string');
   })
   .then(kmlText => {
-    const kmlLayer = new L.KML(kmlText); // Parse the KML
+    // Parse and add the KML to the map
+    const kmlLayer = new L.KML(kmlText);
     map.addLayer(kmlLayer);
 
-    // Fit map bounds to KML layer
+    // Fit the map to the bounds of the KML layer
     map.fitBounds(kmlLayer.getBounds());
 
-    // Optional: Query form functionality
+    // Add query functionality for parcels
     document.getElementById('query-form').addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -32,7 +35,8 @@ fetch('data/kolvi_1.kmz')
       const parcelno = document.getElementById('parcelno').value;
 
       kmlLayer.eachLayer(layer => {
-        const props = layer.feature?.properties;
+        const props = layer.feature?.properties || layer.options?.properties;
+
         if (
           props &&
           props.vdc === vdc &&
@@ -41,13 +45,13 @@ fetch('data/kolvi_1.kmz')
         ) {
           layer.setStyle({
             color: "#ff0000",
-            weight: 3
+            weight: 3,
           });
-          map.fitBounds(layer.getBounds()); // Zoom to the selected parcel
+          map.fitBounds(layer.getBounds()); // Zoom to the queried parcel
         } else {
           layer.setStyle({
             color: "#999",
-            weight: 1
+            weight: 1,
           });
         }
       });
