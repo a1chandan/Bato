@@ -3,19 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parcel Query Map</title>
+    <title>Responsive Parcel Map</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <div id="search-bar">
-        <select id="vdc">
-            <option value="">Select VDC</option>
-        </select>
-        <select id="wardno">
-            <option value="">Select Ward No</option>
-        </select>
+        <input type="text" id="vdc" placeholder="VDC">
+        <input type="text" id="wardno" placeholder="Ward No">
         <input type="text" id="parcelno" placeholder="Parcel No">
         <button id="search-btn">Search</button>
     </div>
