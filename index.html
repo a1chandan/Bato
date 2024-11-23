@@ -3,10 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Parcel Web Map</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Parcel Web Map with KMZ</title>
+  
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- JSZip for extracting KMZ -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <!-- Leaflet-KML plugin -->
+  <script src="https://unpkg.com/leaflet-kml/L.KML.min.js"></script>
+  
+  <!-- CSS for styling -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="app">
@@ -27,6 +39,8 @@
     </div>
     <div id="map"></div>
   </div>
+  
+  <!-- Custom JS for loading KMZ and handling map logic -->
   <script src="script.js"></script>
 </body>
 </html>
