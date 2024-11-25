@@ -24,9 +24,9 @@ fetch('data/kolvi_1.json')
                 layer.bindTooltip(`ParcelNo: ${feature.properties.PARCELNO}`);
                 // Store feature properties for search
                 parcelData.push({ 
-                    vdc: feature.properties.vdc.toString().toLowerCase(),
-                    wardno: feature.properties.wardno.toString().toLowerCase(),
-                    parcelno: feature.properties.parcelno.toString().toLowerCase(),
+                    vdc: feature.properties.VDC.toString().toLowerCase(),
+                    wardno: feature.properties.WARDNO.toString().toLowerCase(),
+                    parcelno: feature.properties.PARCELNO.toString().toLowerCase(),
                     bounds: layer.getBounds(), 
                     feature 
                 });
@@ -63,7 +63,7 @@ function highlightParcel(parcel) {
     L.marker(center, {
         icon: L.divIcon({
             className: 'parcel-label',
-            html: `<strong>${parcel.parcelno.toUpperCase()}</strong>`,
+            html: `<strong>${parcel.PARCELNO.toUpperCase()}</strong>`,
             iconSize: [50, 20],
         }),
     }).addTo(map);
@@ -76,7 +76,7 @@ function highlightParcel(parcel) {
 let fuse;
 function initializeFuse() {
     const fuseOptions = {
-        keys: ['vdc', 'wardno', 'parcelno'],
+        keys: ['VDC', 'WARDNO', 'PARCELNO'],
         threshold: 0.4, // Adjust threshold for fuzzy matching
         includeScore: true,
     };
