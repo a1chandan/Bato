@@ -4,6 +4,7 @@ const map = L.map('map').setView([27.7, 85.3], 12); // Default view
 // Add a tile layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
+    opacity = 0.5
 }).addTo(map);
 
 let geojsonLayer; // For all parcels
@@ -16,11 +17,11 @@ fetch('data/kolvi_1.json')
         // Add GeoJSON layer
         geojsonLayer = L.geoJSON(data, {
             style: {
-                color: '#cccccc',
+                color: '#403e3e',
                 weight: 0.4,
             },
             onEachFeature: (feature, layer) => {
-                layer.bindTooltip(`Parcel No: ${feature.properties.PARCELNO}`);
+                layer.bindTooltip(`कित्ता नं- ${feature.properties.PARCELNO}`);
             },
         }).addTo(map);
 
@@ -61,7 +62,7 @@ document.getElementById('search-btn').addEventListener('click', () => {
             L.marker(center, {
                 icon: L.divIcon({
                     className: 'parcel-label',
-                    html: `<strong>${parcelno}</strong>`,
+                    html: `<strong>${PARCELNO}</strong>`,
                     iconSize: [50, 20],
                 }),
             }).addTo(map);
