@@ -17,18 +17,27 @@ fetch('data/kolvi_1.json')
         // Add GeoJSON layer
         geojsonLayer = L.geoJSON(data, {
             style: {
-                color: '#3d3d3d',
-                weight: 0.4,
+                color: '#cccccc',
+                weight: 1,
             },
             onEachFeature: (feature, layer) => {
-                layer.bindTooltip(`Parcel No: ${feature.properties.PARCELNO}`);
+                layer.bindTooltip(`ParcelNo: ${feature.properties.PARCELNO}`);
                 // Store feature properties for search
-                parcelData.push({ ...feature.properties, bounds: layer.getBounds(), feature });
+                parcelData.push({ 
+                    vdc: feature.properties.vdc.toString().toLowerCase(),
+                    wardno: feature.properties.wardno.toString().toLowerCase(),
+                    parcelno: feature.properties.parcelno.toString().toLowerCase(),
+                    bounds: layer.getBounds(), 
+                    feature 
+                });
             },
         }).addTo(map);
 
         // Zoom to the extent of all parcels
         map.fitBounds(geojsonLayer.getBounds());
+
+        // Initialize Fuse.js after data is loaded
+        initializeFuse();
     });
 
 // Function to highlight a parcel
@@ -38,10 +47,13 @@ function highlightParcel(parcel) {
         map.removeLayer(parcelLayer);
     }
 
+    // Remove existing parcel labels
+    document.querySelectorAll('.parcel-label').forEach(label => label.remove());
+
     // Highlight the selected parcel with black outline
     parcelLayer = L.geoJSON(parcel.feature, {
         style: {
-            color: '#570101',
+            color: '#000000',
             weight: 3,
         },
     }).addTo(map);
@@ -51,7 +63,7 @@ function highlightParcel(parcel) {
     L.marker(center, {
         icon: L.divIcon({
             className: 'parcel-label',
-            html: `<strong>${parcel.PARCELNO}</strong>`,
+            html: `<strong>${parcel.parcelno.toUpperCase()}</strong>`,
             iconSize: [50, 20],
         }),
     }).addTo(map);
@@ -61,25 +73,39 @@ function highlightParcel(parcel) {
 }
 
 // Fuse.js configuration
-const fuseOptions = {
-    keys: ['VDC', 'WARDNO', 'PARCELNO'],
-    threshold: 0.4, // Adjust threshold for fuzzy matching
-};
 let fuse;
-
-// Initialize Fuse.js when data is loaded
-document.addEventListener('DOMContentLoaded', () => {
+function initializeFuse() {
+    const fuseOptions = {
+        keys: ['vdc', 'wardno', 'parcelno'],
+        threshold: 0.4, // Adjust threshold for fuzzy matching
+        includeScore: true,
+    };
     fuse = new Fuse(parcelData, fuseOptions);
-});
+}
 
 // Search button click event
 document.getElementById('search-btn').addEventListener('click', () => {
-    const vdc = document.getElementById('VDC').value.trim();
-    const wardno = document.getElementById('WARDNO').value.trim();
-    const parcelno = document.getElementById('PARCELNO').value.trim();
+    const vdcInput = document.getElementById('VDC').value.trim().toLowerCase();
+    const wardnoInput = document.getElementById('WARDNO').value.trim().toLowerCase();
+    const parcelnoInput = document.getElementById('PARCELNO').value.trim().toLowerCase();
 
-    const searchQuery = { vdc, wardno, parcelno };
-    const results = fuse.search(searchQuery);
+    // Build search query
+    const searchQuery = [];
+    if (vdcInput) searchQuery.push(vdcInput);
+    if (wardnoInput) searchQuery.push(wardnoInput);
+    if (parcelnoInput) searchQuery.push(parcelnoInput);
+
+    if (searchQuery.length === 0) {
+        alert('Please enter at least one search criterion.');
+        return;
+    }
+
+    // Perform search using Fuse.js
+    const results = fuse.search({
+        vdc: vdcInput,
+        wardno: wardnoInput,
+        parcelno: parcelnoInput
+    });
 
     if (results.length > 0) {
         // Highlight the first matching parcel
