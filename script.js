@@ -17,10 +17,10 @@ fetch('data/kolvi_1.json')
         geojsonLayer = L.geoJSON(data, {
             style: {
                 color: '#cccccc',
-                weight: 1,
+                weight: 0.4,
             },
             onEachFeature: (feature, layer) => {
-                layer.bindTooltip(`Parcel No: ${feature.properties.parcelno}`);
+                layer.bindTooltip(`Parcel No: ${feature.properties.PARCELNO}`);
             },
         }).addTo(map);
 
@@ -30,9 +30,9 @@ fetch('data/kolvi_1.json')
 
 // Search button click event
 document.getElementById('search-btn').addEventListener('click', () => {
-    const vdc = document.getElementById('vdc').value.trim();
-    const wardno = document.getElementById('wardno').value.trim();
-    const parcelno = document.getElementById('parcelno').value.trim();
+    const vdc = document.getElementById('VDC').value.trim();
+    const wardno = document.getElementById('WARDNO').value.trim();
+    const parcelno = document.getElementById('PARCELNO').value.trim();
 
     let found = false; // To track if the parcel is found
 
@@ -45,14 +45,14 @@ document.getElementById('search-btn').addEventListener('click', () => {
     geojsonLayer.eachLayer(layer => {
         const props = layer.feature.properties;
 
-        if (props.vdc === vdc && props.wardno === wardno && props.parcelno === parcelno) {
+        if (props.VDC === vdc && props.WARDNO === wardno && props.PARCELNO === parcelno) {
             found = true;
 
             // Highlight the selected parcel with black outline
             parcelLayer = L.geoJSON(layer.feature, {
                 style: {
                     color: '#000000',
-                    weight: 3,
+                    weight: 2,
                 },
             }).addTo(map);
 
