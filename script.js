@@ -21,7 +21,7 @@ fetch('data/kolvi_1.json')
                 weight: 0.4,
             },
             onEachFeature: (feature, layer) => {
-                layer.bindTooltip(`कित्ता नं- ${feature.properties.PARCELNO}`);
+                layer.bindTooltip(`ParcelNo- ${feature.properties.PARCELNO}`);
             },
         }).addTo(map);
 
