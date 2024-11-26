@@ -1,31 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Parcel Web Map</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <!-- Fuse.js Library -->
-    <script src="https://cdn.jsdelivr.net/npm/fuse.js/dist/fuse.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Land Parcel Webmap</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
 </head>
 <body>
-    <div id="search-bar">
-        <div class="search-field">
-            <input type="text" id="vdc" placeholder="Enter VDC">
-        </div>
-        <div class="search-field">
-            <input type="text" id="wardno" placeholder="Enter Ward No">
-        </div>
-        <div class="search-field">
-            <input type="text" id="parcelno" placeholder="Enter Parcel No">
-        </div>
-        <div class="search-field">
-            <button id="search-btn">Search</button>
-        </div>
-    </div>
+  <div id="map-container">
     <div id="map"></div>
-    <script src="script.js"></script>
+  </div>
+  <div id="search-panel">
+    <h3>Search Parcel</h3>
+    <form id="search-form">
+      <label for="vdc">VDC:</label>
+      <input type="text" id="vdc" name="vdc" required>
+      <label for="wardno">Ward No:</label>
+      <input type="text" id="wardno" name="wardno" required>
+      <label for="parcelno">Parcel No:</label>
+      <input type="text" id="parcelno" name="parcelno" required>
+      <button type="submit">Search</button>
+    </form>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
