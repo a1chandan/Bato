@@ -82,25 +82,37 @@ fetch('data/kolvi_1.json')
     };
 
     // Function to add distance labels
-    const addDistanceLabels = (feature) => {
-      const coordinates = feature.geometry.coordinates[0]; // Assuming Polygon geometry
-      for (let i = 0; i < coordinates.length - 1; i++) {
-        const start = turf.point(coordinates[i]);
-        const end = turf.point(coordinates[i + 1]);
-        const midPoint = turf.midpoint(start, end);
-        const distance = turf.distance(start, end, { units: 'feet' }).toFixed(2); // Calculate distance in feet
+ const addDistanceLabels = (feature) => {
+  const geometryType = feature.geometry.type;
 
-        // Add a label to the map at the midpoint of the side
-        L.marker([midPoint.geometry.coordinates[1], midPoint.geometry.coordinates[0]], {
-          icon: L.divIcon({
-            className: 'distance-label',
-            html: `<div style="background: white; padding: 2px; border: 1px solid black;">${distance} ft</div>`,
-            iconSize: [50, 20]
-          }),
-          interactive: false
-        }).addTo(distanceLabelLayer);
-      }
-    };
+  let coordinates;
+  if (geometryType === 'Polygon') {
+    coordinates = feature.geometry.coordinates[0]; // Outer ring of the polygon
+  } else if (geometryType === 'MultiPolygon') {
+    coordinates = feature.geometry.coordinates[0][0]; // First outer ring of the first polygon
+  } else {
+    console.error(`Unsupported geometry type: ${geometryType}`);
+    return;
+  }
+
+  for (let i = 0; i < coordinates.length - 1; i++) {
+    const start = turf.point(coordinates[i]);
+    const end = turf.point(coordinates[i + 1]);
+    const midPoint = turf.midpoint(start, end);
+    const distance = turf.distance(start, end, { units: 'feet' }).toFixed(2); // Calculate distance in feet
+
+    // Add a label to the map at the midpoint of the side
+    L.marker([midPoint.geometry.coordinates[1], midPoint.geometry.coordinates[0]], {
+      icon: L.divIcon({
+        className: 'distance-label',
+        html: `<div style="background: white; padding: 2px; border: 1px solid black;">${distance} ft</div>`,
+        iconSize: [50, 20]
+      }),
+      interactive: false
+    }).addTo(distanceLabelLayer);
+  }
+};
+
 
     // Add search functionality
     document.getElementById('search-form').addEventListener('submit', function (e) {
