@@ -1,3 +1,4 @@
+
 // Include Turf.js (ensure you include the library in your HTML file)
 // <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
 
@@ -25,7 +26,7 @@ fetch('data/kolvi_1.json')
     geojsonLayer = L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
         const { VDC, WARDNO, PARCELNO } = feature.properties;
-        layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
+        layer.bindPopup(\`VDC: \${VDC}<br>Ward No: \${WARDNO}<br>Parcel No: \${PARCELNO}\`);
       },
       style: {
         color: 'blue',
@@ -37,7 +38,7 @@ fetch('data/kolvi_1.json')
     parcelLayer = L.geoJSON(data, {
       onEachFeature: function (feature, layer) {
         const { VDC, WARDNO, PARCELNO } = feature.properties;
-        layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
+        layer.bindPopup(\`VDC: \${VDC}<br>Ward No: \${WARDNO}<br>Parcel No: \${PARCELNO}\`);
       },
       style: {
         color: 'red',
@@ -63,98 +64,27 @@ fetch('data/kolvi_1.json')
       return (angleRadians * 180) / Math.PI; // Convert to degrees
     };
 
-// Function to add generalized distance labels aligned along the sides
-const addDistanceLabels = (feature) => {
-  const geometryType = feature.geometry.type;
+    // Function to add generalized distance labels aligned along the sides
+    const addDistanceLabels = (feature) => {
+      const geometryType = feature.geometry.type;
 
-  let coordinates;
-  if (geometryType === 'Polygon') {
-    coordinates = feature.geometry.coordinates[0]; // Outer ring of the polygon
-  } else if (geometryType === 'MultiPolygon') {
-    coordinates = feature.geometry.coordinates[0][0]; // First outer ring of the first polygon
-  } else {
-    console.error(`Unsupported geometry type: ${geometryType}`);
-    return;
-  }
+      let coordinates;
+      if (geometryType === 'Polygon') {
+        coordinates = feature.geometry.coordinates[0]; // Outer ring of the polygon
+      } else if (geometryType === 'MultiPolygon') {
+        coordinates = feature.geometry.coordinates[0][0]; // First outer ring of the first polygon
+      } else {
+        console.error(\`Unsupported geometry type: \${geometryType}\`);
+        return;
+      }
 
-  let generalizedSegments = [];
-  let start = coordinates[0];
-  let accumulatedDistance = 0;
+      let generalizedSegments = [];
+      let start = coordinates[0];
+      let accumulatedDistance = 0;
 
-  for (let i = 1; i < coordinates.length; i++) {
-    const current = coordinates[i];
-    const next = coordinates[i + 1] || coordinates[0]; // Wrap to first for closed polygons
-
-    // Calculate segment length
-    const startPoint = turf.point(start);
-    const currentPoint = turf.point(current);
-    const distance = turf.distance(startPoint, currentPoint, { units: 'feet' });
-
-    // Calculate bend angle if there is a next segment
-    let angle = 180;
-    if (i < coordinates.length - 1) {
-      angle = calculateAngle(start, current, next);
-    }
-
-    if (distance < 5 || angle > 150) {
-      // Accumulate distance for small segments or minor bends
-      accumulatedDistance += distance;
-    } else {
-      // Add generalized segment
-      accumulatedDistance += distance;
-      generalizedSegments.push({
-        start,
-        end: current,
-        distance: accumulatedDistance
-      });
-
-      // Reset for the next generalized segment
-      start = current;
-      accumulatedDistance = 0;
-    }
-  }
-
-  // Label each generalized segment
-  generalizedSegments.forEach((segment) => {
-    const { start, end, distance } = segment;
-
-    // Calculate midpoint
-    const midPoint = turf.midpoint(turf.point(start), turf.point(end)).geometry.coordinates;
-
-    // Calculate angle for label rotation
-    const dx = end[0] - start[0];
-    const dy = end[1] - start[1];
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Convert radians to degrees
-
-    // Offset the label slightly away from the line
-    const offset = [-dy * 0.00005, dx * 0.00005]; // Scale offset for visibility
-    const offsetMidPoint = [midPoint[0] + offset[0], midPoint[1] + offset[1]];
-
-    // Add a label to the map at the offset midpoint
-    L.marker([offsetMidPoint[1], offsetMidPoint[0]], {
-      icon: L.divIcon({
-        className: 'distance-label',
-        html: `<div style="transform: rotate(${angle}deg); white-space: nowrap;">${distance.toFixed(2)}'</div>`,
-        iconSize: [50, 20]
-      }),
-      interactive: false
-    }).addTo(distanceLabelLayer);
-  });
-};
-
-// Add custom CSS for the labels
-const style = document.createElement('style');
-style.textContent = `
-.distance-label div {
-  font-size: 12px;
-  font-weight: bold;
-  color: black;
-  text-shadow: 1px 1px 2px white;
-  background: transparent;
-}
-`;
-document.head.appendChild(style);
-
+      for (let i = 1; i < coordinates.length; i++) {
+        const current = coordinates[i];
+        const next = coordinates[i + 1] || coordinates[0]; // Wrap to first for closed polygons
 
         // Calculate segment length
         const startPoint = turf.point(start);
@@ -192,17 +122,20 @@ document.head.appendChild(style);
         // Calculate midpoint
         const midPoint = turf.midpoint(turf.point(start), turf.point(end)).geometry.coordinates;
 
-        // Calculate offset for label (perpendicular to the segment)
+        // Calculate angle for label rotation
         const dx = end[0] - start[0];
         const dy = end[1] - start[1];
-        const offset = [-dy * 0.0001, dx * 0.0001]; // Scale offset for visibility
+        const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Convert radians to degrees
+
+        // Offset the label slightly away from the line
+        const offset = [-dy * 0.00005, dx * 0.00005]; // Scale offset for visibility
         const offsetMidPoint = [midPoint[0] + offset[0], midPoint[1] + offset[1]];
 
         // Add a label to the map at the offset midpoint
         L.marker([offsetMidPoint[1], offsetMidPoint[0]], {
           icon: L.divIcon({
             className: 'distance-label',
-            html: `<span>${distance.toFixed(2)}'</span>`, // No box, just text
+            html: `<div style="transform: rotate(\${angle}deg); white-space: nowrap;">\${distance.toFixed(2)}'</div>`,
             iconSize: [50, 20]
           }),
           interactive: false
@@ -244,7 +177,7 @@ document.head.appendChild(style);
         filter: filterFunction,
         onEachFeature: function (feature, layer) {
           const { VDC, WARDNO, PARCELNO } = feature.properties;
-          layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
+          layer.bindPopup(\`VDC: \${VDC}<br>Ward No: \${WARDNO}<br>Parcel No: \${PARCELNO}\`);
         },
         style: {
           color: 'red',
