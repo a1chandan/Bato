@@ -7,6 +7,27 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
+// Add a scale bar at the bottom center
+L.control.scale({
+  position: 'bottomcenter', // Custom position
+  metric: true,            // Display metric units
+  imperial: true           // Display imperial units
+}).addTo(map);
+
+// Add a north rose (north arrow)
+const north = L.control({ position: 'topright' });
+
+north.onAdd = function () {
+  const div = L.DomUtil.create('div', 'north-rose');
+  div.innerHTML = `
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Compass_rose_simple.svg/512px-Compass_rose_simple.svg.png"
+         style="width: 50px; height: 50px; opacity: 0.8;" alt="North Arrow">
+  `;
+  return div;
+};
+
+north.addTo(map);
+
 // Variables to store the GeoJSON layers
 let geojsonLayer; // Full dataset (Sheet Map)
 let parcelLayer;  // Filtered dataset (Parcel Map)
@@ -125,16 +146,5 @@ fetch('data/kolvi_1.json')
         map.removeLayer(parcelLayer);
       }
     });
-
-    // Add a measurement tool
-    L.control.measure({
-      primaryLengthUnit: 'meters', // Default unit
-      secondaryLengthUnit: 'feet', // Additional unit
-      primaryAreaUnit: 'sqmeters',
-      secondaryAreaUnit: 'sqfeet',
-      position: 'topright', // Position of the tool
-      activeColor: '#ff0000', // Color while drawing
-      completedColor: '#00ff00', // Color when complete
-    }).addTo(map);
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
