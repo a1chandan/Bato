@@ -74,45 +74,67 @@ fetch('data/kolvi_1.json')
         const parcel = parcelLayer.getLayers()[0]; // Get the first (and typically only) feature
         map.fitBounds(parcel.getBounds());
 
-        // Add distance labels to the parcel sides
+        // Add distance labels to the parcel sides with sharp bends
         addDistanceLabels(parcel.feature);
       } else {
         alert('No parcels found matching your query.');
       }
     };
 
-    // Function to add distance labels
- const addDistanceLabels = (feature) => {
-  const geometryType = feature.geometry.type;
+    // Function to calculate the angle between two vectors
+    const calculateAngle = (a, b, c) => {
+      const ba = [a[0] - b[0], a[1] - b[1]];
+      const bc = [c[0] - b[0], c[1] - b[1]];
 
-  let coordinates;
-  if (geometryType === 'Polygon') {
-    coordinates = feature.geometry.coordinates[0]; // Outer ring of the polygon
-  } else if (geometryType === 'MultiPolygon') {
-    coordinates = feature.geometry.coordinates[0][0]; // First outer ring of the first polygon
-  } else {
-    console.error(`Unsupported geometry type: ${geometryType}`);
-    return;
-  }
+      const dotProduct = ba[0] * bc[0] + ba[1] * bc[1];
+      const magnitudeBA = Math.sqrt(ba[0] ** 2 + ba[1] ** 2);
+      const magnitudeBC = Math.sqrt(bc[0] ** 2 + bc[1] ** 2);
 
-  for (let i = 0; i < coordinates.length - 1; i++) {
-    const start = turf.point(coordinates[i]);
-    const end = turf.point(coordinates[i + 1]);
-    const midPoint = turf.midpoint(start, end);
-    const distance = turf.distance(start, end, { units: 'feet' }).toFixed(2); // Calculate distance in feet
+      const cosineAngle = dotProduct / (magnitudeBA * magnitudeBC);
+      const angleRadians = Math.acos(cosineAngle);
 
-    // Add a label to the map at the midpoint of the side
-    L.marker([midPoint.geometry.coordinates[1], midPoint.geometry.coordinates[0]], {
-      icon: L.divIcon({
-        className: 'distance-label',
-        html: `<div style="background: white; padding: 2px; border: 1px solid black;">${distance} ft</div>`,
-        iconSize: [50, 20]
-      }),
-      interactive: false
-    }).addTo(distanceLabelLayer);
-  }
-};
+      return (angleRadians * 180) / Math.PI; // Convert to degrees
+    };
 
+    // Function to add distance labels for sides with sharp bends
+    const addDistanceLabels = (feature) => {
+      const geometryType = feature.geometry.type;
+
+      let coordinates;
+      if (geometryType === 'Polygon') {
+        coordinates = feature.geometry.coordinates[0]; // Outer ring of the polygon
+      } else if (geometryType === 'MultiPolygon') {
+        coordinates = feature.geometry.coordinates[0][0]; // First outer ring of the first polygon
+      } else {
+        console.error(`Unsupported geometry type: ${geometryType}`);
+        return;
+      }
+
+      for (let i = 1; i < coordinates.length - 1; i++) {
+        const prev = coordinates[i - 1];
+        const current = coordinates[i];
+        const next = coordinates[i + 1];
+
+        const angle = calculateAngle(prev, current, next);
+
+        if (angle < 150) { // Sharp bend threshold (180 - 30 degrees)
+          const start = turf.point(prev);
+          const end = turf.point(current);
+          const midPoint = turf.midpoint(start, end);
+          const distance = turf.distance(start, end, { units: 'feet' }).toFixed(2); // Calculate distance in feet
+
+          // Add a label to the map at the midpoint of the side
+          L.marker([midPoint.geometry.coordinates[1], midPoint.geometry.coordinates[0]], {
+            icon: L.divIcon({
+              className: 'distance-label',
+              html: `<span>${distance}'</span>`, // No box, just text
+              iconSize: [50, 20]
+            }),
+            interactive: false
+          }).addTo(distanceLabelLayer);
+        }
+      }
+    };
 
     // Add search functionality
     document.getElementById('search-form').addEventListener('submit', function (e) {
