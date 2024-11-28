@@ -8,7 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Load parcel data
 let parcelsLayer;
-fetch('data/kolvi_1.json')
+fetch('kolvi_1.json')
   .then(response => response.json())
   .then(data => {
     parcelsLayer = L.geoJSON(data, {
@@ -21,14 +21,15 @@ fetch('data/kolvi_1.json')
 // Form submission handler
 document.getElementById('searchForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const vdc = document.getElementById('vdcInput').value;
-  const wardNo = document.getElementById('wardNoInput').value;
-  const parcelNo = document.getElementById('parcelNoInput').value;
+  const vdc = document.getElementById('vdcInput').value.trim();
+  const wardNo = document.getElementById('wardNoInput').value.trim();
+  const parcelNo = document.getElementById('parcelNoInput').value.trim();
 
   parcelsLayer.eachLayer(layer => {
-    if (layer.feature.properties.VDC === vdc &&
-        layer.feature.properties.WARDNO === wardNo &&
-        layer.feature.properties.PARCELNO === parcelNo) {
+    // Compare VDC, WARDNO, and PARCELNO as strings
+    if (String(layer.feature.properties.VDC) === vdc &&
+        String(layer.feature.properties.WARDNO) === wardNo &&
+        String(layer.feature.properties.PARCELNO) === parcelNo) {
       map.fitBounds(layer.getBounds());
       showSplitOption(layer.feature);
     }
