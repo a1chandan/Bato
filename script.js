@@ -7,9 +7,9 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
 
-// Load parcel data (ensure `kolvi_1.json` is in the correct directory and accessible)
+// Load parcel data (update the path to the GeoJSON file in the 'data' folder)
 let parcelsLayer;
-fetch('data/kolvi_1.json')
+fetch('data/kolvi_1.json') // Adjust this to match the relative path
   .then(response => {
     if (!response.ok) throw new Error(`Failed to load GeoJSON: ${response.statusText}`);
     return response.json();
