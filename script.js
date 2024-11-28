@@ -139,7 +139,7 @@ fetch('data/kolvi_1.json')
     });
 
     // Load the MBTiles layer
-    const mbtilesUrl = 'data/kolvi.mbtiles';
+    const mbtilesUrl = 'data/kolvi1.mbtiles';
     fetch(mbtilesUrl)
       .then(response => response.arrayBuffer())
       .then(buffer => {
