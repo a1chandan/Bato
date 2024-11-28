@@ -150,15 +150,44 @@ fetch('data/kolvi_1.json')
       })
       .catch(error => console.error('Error loading MBTiles:', error));
 
-    // Add a measurement tool
-    L.control.measure({
-      primaryLengthUnit: 'meters',  // Measure length in meters
-      secondaryLengthUnit: 'feet', // Also provide length in feet
-      primaryAreaUnit: 'sqmeters', // Measure area in square meters
-      secondaryAreaUnit: 'sqfeet', // Also provide area in square feet
-      position: 'bottomleft',         // Position the measurement tool
-      activeColor: '#ff0000',      // Line color while drawing
-      completedColor: '#00ff00'    // Line color when completed
-    }).addTo(map);
-  })
-  .catch(error => console.error('Error loading GeoJSON:', error));
+  / Add scale bar
+L.control.scale({
+  position: 'bottomleft',
+  metric: true,
+  imperial: true
+}).addTo(map);
+
+// Add distance measurement tool using Leaflet.pm
+map.pm.addControls({
+  position: 'topleft',
+  drawMarker: false,
+  drawPolygon: false,
+  drawPolyline: true, // Enable polyline drawing
+  drawRectangle: false,
+  drawCircle: false,
+  editMode: false,
+  dragMode: false,
+  cutPolygon: false,
+  removalMode: false
+});
+
+// Listen for distance measurement events
+map.on('pm:drawstart', (e) => {
+  if (e.shape === 'Line') {
+    console.log('Started measuring distance');
+  }
+});
+
+map.on('pm:create', (e) => {
+  if (e.layer instanceof L.Polyline) {
+    const latlngs = e.layer.getLatLngs();
+    let totalDistance = 0;
+
+    for (let i = 0; i < latlngs.length - 1; i++) {
+      totalDistance += latlngs[i].distanceTo(latlngs[i + 1]);
+    }
+
+    alert(`Total distance: ${totalDistance.toFixed(2)} meters (${(totalDistance * 3.28084).toFixed(2)} feet)`);
+    map.removeLayer(e.layer); // Remove the measurement layer after showing the result
+  }
+});
