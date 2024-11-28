@@ -159,7 +159,7 @@ L.control.scale({
 
 // Add distance measurement tool using Leaflet.pm
 map.pm.addControls({
-  position: 'topleft',
+  position: 'bottomright',
   drawMarker: false,
   drawPolygon: false,
   drawPolyline: true, // Enable polyline drawing
