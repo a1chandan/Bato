@@ -7,6 +7,13 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '© OpenStreetMap contributors'
 }).addTo(map);
 
+// Add a scale bar
+L.control.scale({
+  position: 'bottomleft',
+  metric: true,
+  imperial: true
+}).addTo(map);
+
 // Variables to store the GeoJSON layers
 let geojsonLayer; // Full dataset (Sheet Map)
 let parcelLayer;  // Filtered dataset (Parcel Map)
@@ -45,12 +52,10 @@ fetch('data/kolvi_1.json')
 
     // Function to filter data based on query and display only the filtered parcels
     const displayFilteredData = (filterFunction) => {
-      // Clear the previous parcelLayer from the map
       if (parcelLayer) {
         map.removeLayer(parcelLayer);
       }
 
-      // Create a new parcelLayer with the filtered data
       parcelLayer = L.geoJSON(data, {
         filter: filterFunction,
         onEachFeature: function (feature, layer) {
@@ -63,7 +68,6 @@ fetch('data/kolvi_1.json')
         }
       }).addTo(map);
 
-      // Zoom to the filtered parcel's bounds
       if (parcelLayer.getLayers().length > 0) {
         map.fitBounds(parcelLayer.getBounds());
       } else {
@@ -71,7 +75,6 @@ fetch('data/kolvi_1.json')
       }
     };
 
-    // Add search functionality
     document.getElementById('search-form').addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -111,7 +114,6 @@ fetch('data/kolvi_1.json')
 
     legend.addTo(map);
 
-    // Handle checkbox changes
     document.getElementById('sheetMapCheckbox').addEventListener('change', function () {
       if (this.checked) {
         map.addLayer(geojsonLayer);
@@ -137,16 +139,26 @@ fetch('data/kolvi_1.json')
     });
 
     // Load the MBTiles layer
-    const mbtilesUrl = 'data/kolvi1.mbtiles';
+    const mbtilesUrl = 'data/kolvi.mbtiles';
     fetch(mbtilesUrl)
       .then(response => response.arrayBuffer())
       .then(buffer => {
-        // Use the Leaflet-MBTiles plugin to add the MBTiles layer
         mbtilesLayer = L.tileLayer.mbTiles(buffer, {
           attribution: 'MBTiles Layer',
           opacity: 0.8
         }).addTo(map);
       })
       .catch(error => console.error('Error loading MBTiles:', error));
+
+    // Add a measurement tool
+    L.control.measure({
+      primaryLengthUnit: 'meters',  // Measure length in meters
+      secondaryLengthUnit: 'feet', // Also provide length in feet
+      primaryAreaUnit: 'sqmeters', // Measure area in square meters
+      secondaryAreaUnit: 'sqfeet', // Also provide area in square feet
+      position: 'bottomleft',         // Position the measurement tool
+      activeColor: '#ff0000',      // Line color while drawing
+      completedColor: '#00ff00'    // Line color when completed
+    }).addTo(map);
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
