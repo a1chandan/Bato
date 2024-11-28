@@ -1,5 +1,5 @@
 // Initialize the map
-const map = L.map('map').setView([27.7, 85.3], 10); // Adjust to your location
+const map = L.map('map').setView([ 27.073679,  85.171593], 10); // Adjust to your location
 
 // Add a basemap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -8,7 +8,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Load parcel data
 let parcelsLayer;
-fetch('kolvi_1.json')
+fetch('data/kolvi_1.json')
   .then(response => response.json())
   .then(data => {
     parcelsLayer = L.geoJSON(data, {
