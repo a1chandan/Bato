@@ -1,21 +1,38 @@
 // Initialize the map
-const map = L.map('map').setView([ 27.073679,  85.171593], 10); // Adjust to your location
+const map = L.map('map').setView([27.7, 85.3], 10); // Adjust to your preferred location and zoom level
 
 // Add a basemap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
   maxZoom: 19
 }).addTo(map);
 
-// Load parcel data
+// Load parcel data (ensure `kolvi_1.json` is in the correct directory and accessible)
 let parcelsLayer;
 fetch('data/kolvi_1.json')
-  .then(response => response.json())
+  .then(response => {
+    if (!response.ok) throw new Error(`Failed to load GeoJSON: ${response.statusText}`);
+    return response.json();
+  })
   .then(data => {
+    // Add GeoJSON to the map
     parcelsLayer = L.geoJSON(data, {
       onEachFeature: (feature, layer) => {
-        layer.bindPopup(`VDC: ${feature.properties.VDC}, Ward: ${feature.properties.WARDNO}, Parcel: ${feature.properties.PARCELNO}`);
+        // Bind popup to each parcel
+        layer.bindPopup(
+          `<b>VDC:</b> ${feature.properties.VDC}<br>` +
+          `<b>Ward:</b> ${feature.properties.WARDNO}<br>` +
+          `<b>Parcel:</b> ${feature.properties.PARCELNO}`
+        );
       }
     }).addTo(map);
+
+    // Fit the map to the GeoJSON layer bounds
+    map.fitBounds(parcelsLayer.getBounds());
+  })
+  .catch(error => {
+    console.error('Error loading GeoJSON:', error);
+    alert('Could not load parcel data.');
   });
 
 // Form submission handler
@@ -25,15 +42,24 @@ document.getElementById('searchForm').addEventListener('submit', (e) => {
   const wardNo = document.getElementById('wardNoInput').value.trim();
   const parcelNo = document.getElementById('parcelNoInput').value.trim();
 
+  // Search for the parcel
+  let parcelFound = false;
   parcelsLayer.eachLayer(layer => {
-    // Compare VDC, WARDNO, and PARCELNO as strings
-    if (String(layer.feature.properties.VDC) === vdc &&
-        String(layer.feature.properties.WARDNO) === wardNo &&
-        String(layer.feature.properties.PARCELNO) === parcelNo) {
+    if (
+      String(layer.feature.properties.VDC) === vdc &&
+      String(layer.feature.properties.WARDNO) === wardNo &&
+      String(layer.feature.properties.PARCELNO) === parcelNo
+    ) {
+      parcelFound = true;
       map.fitBounds(layer.getBounds());
+      layer.openPopup();
       showSplitOption(layer.feature);
     }
   });
+
+  if (!parcelFound) {
+    alert('Parcel not found. Please check your inputs.');
+  }
 });
 
 // Show split dialog
