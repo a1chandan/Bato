@@ -1,150 +1,98 @@
 // Initialize the map
-const map = L.map('map').setView([27.7, 85.4], 14);
+const map = L.map('map').setView([27.7, 85.3], 10); // Adjust to your location
 
-// Add a base layer with transparency
+// Add a basemap
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  opacity: 0.7,
-  attribution: '© OpenStreetMap contributors'
+  maxZoom: 19
 }).addTo(map);
 
-// Add a scale bar at the bottom center
-L.control.scale({
-  position: 'bottomcenter', // Custom position
-  metric: true,            // Display metric units
-  imperial: true           // Display imperial units
-}).addTo(map);
-
-// Add a north rose (north arrow)
-const north = L.control({ position: 'topright' });
-
-north.onAdd = function () {
-  const div = L.DomUtil.create('div', 'north-rose');
-  div.innerHTML = `
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Compass_rose_simple.svg/512px-Compass_rose_simple.svg.png"
-         style="width: 50px; height: 50px; opacity: 0.8;" alt="North Arrow">
-  `;
-  return div;
-};
-
-north.addTo(map);
-
-// Variables to store the GeoJSON layers
-let geojsonLayer; // Full dataset (Sheet Map)
-let parcelLayer;  // Filtered dataset (Parcel Map)
-
-// Load GeoJSON data
+// Load parcel data
+let parcelsLayer;
 fetch('data/kolvi_1.json')
   .then(response => response.json())
   .then(data => {
-    // Add the full GeoJSON data as the Sheet Map
-    geojsonLayer = L.geoJSON(data, {
-      onEachFeature: function (feature, layer) {
-        const { VDC, WARDNO, PARCELNO } = feature.properties;
-        layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
-      },
-      style: {
-        color: 'blue',
-        weight: 1
-      }
-    });
-
-    // Add the Parcel Map (filtered layer) initially showing all data
-    parcelLayer = L.geoJSON(data, {
-      onEachFeature: function (feature, layer) {
-        const { VDC, WARDNO, PARCELNO } = feature.properties;
-        layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
-      },
-      style: {
-        color: 'red',
-        weight: 2
+    parcelsLayer = L.geoJSON(data, {
+      onEachFeature: (feature, layer) => {
+        layer.bindPopup(`VDC: ${feature.properties.VDC}, Ward: ${feature.properties.WARDNO}, Parcel: ${feature.properties.PARCELNO}`);
       }
     }).addTo(map);
+  });
 
-    // Fit the map to the bounds of all parcels initially
-    map.fitBounds(parcelLayer.getBounds());
+// Form submission handler
+document.getElementById('searchForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const vdc = document.getElementById('vdcInput').value;
+  const wardNo = document.getElementById('wardNoInput').value;
+  const parcelNo = document.getElementById('parcelNoInput').value;
 
-    // Function to filter data based on query and display only the filtered parcels
-    const displayFilteredData = (filterFunction) => {
-      // Clear the previous parcelLayer from the map
-      if (parcelLayer) {
-        map.removeLayer(parcelLayer);
-      }
+  parcelsLayer.eachLayer(layer => {
+    if (layer.feature.properties.VDC === vdc &&
+        layer.feature.properties.WARDNO === wardNo &&
+        layer.feature.properties.PARCELNO === parcelNo) {
+      map.fitBounds(layer.getBounds());
+      showSplitOption(layer.feature);
+    }
+  });
+});
 
-      // Create a new parcelLayer with the filtered data
-      parcelLayer = L.geoJSON(data, {
-        filter: filterFunction,
-        onEachFeature: function (feature, layer) {
-          const { VDC, WARDNO, PARCELNO } = feature.properties;
-          layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
-        },
-        style: {
-          color: 'red',
-          weight: 2
-        }
-      }).addTo(map);
+// Show split dialog
+function showSplitOption(parcel) {
+  const splitDialog = confirm("Do you want to split this parcel?");
+  if (splitDialog) {
+    const area = parseFloat(prompt("Enter the area to split:"));
+    const direction = prompt("Enter the direction (north, south, east, west, etc.):");
+    splitParcel(parcel, area, direction);
+  }
+}
 
-      // Zoom to the filtered parcel's bounds
-      if (parcelLayer.getLayers().length > 0) {
-        map.fitBounds(parcelLayer.getBounds());
-      } else {
-        alert('No parcels found matching your query.');
-      }
-    };
+// Split the parcel
+function splitParcel(parcel, area, direction) {
+  const totalArea = turf.area(parcel);
+  if (area >= totalArea) {
+    alert("Area to split exceeds or equals the parcel area.");
+    return;
+  }
 
-    // Add search functionality
-    document.getElementById('search-form').addEventListener('submit', function (e) {
-      e.preventDefault();
+  const bbox = turf.bbox(parcel);
+  let splitLine;
 
-      const vdc = document.getElementById('vdc').value;
-      const wardno = document.getElementById('wardno').value;
-      const parcelno = document.getElementById('parcelno').value;
+  // Create the split line based on direction
+  if (['north', 'south', 'east', 'west'].includes(direction)) {
+    splitLine = createSplitLine(bbox, direction);
+  } else {
+    alert("Diagonal splitting not yet implemented.");
+    return;
+  }
 
-      const filterFunction = (feature) => {
-        const { VDC, WARDNO, PARCELNO } = feature.properties;
-        const normalizedVDC = vdc.trim() === '' ? null : parseInt(vdc.trim(), 10);
-        const normalizedWARDNO = wardno.trim() === '' ? null : wardno.trim();
-        const normalizedPARCELNO = parcelno.trim() === '' ? null : parseInt(parcelno.trim(), 10);
+  const splitPolygon = turf.intersect(parcel, splitLine);
+  const remainingPolygon = turf.difference(parcel, splitPolygon);
 
-        return (
-          (normalizedVDC === null || VDC === normalizedVDC) &&
-          (normalizedWARDNO === null || WARDNO === normalizedWARDNO) &&
-          (normalizedPARCELNO === null || PARCELNO === normalizedPARCELNO)
-        );
-      };
+  // Add layers to the map
+  const splitLayer = L.geoJSON(splitPolygon, { style: { color: 'blue' } });
+  const remainingLayer = L.geoJSON(remainingPolygon, { style: { color: 'green' } });
+  map.addLayer(splitLayer);
+  map.addLayer(remainingLayer);
 
-      displayFilteredData(filterFunction);
-    });
+  // Add legend toggle
+  const legend = L.control.layers({}, {
+    "Original Parcel": parcelsLayer,
+    "Split Parcels": L.layerGroup([splitLayer, remainingLayer])
+  }).addTo(map);
+}
 
-    // Create a legend with checkboxes
-    const legend = L.control({ position: 'topright' });
-
-    legend.onAdd = function () {
-      const div = L.DomUtil.create('div', 'legend');
-      div.innerHTML = `
-        <h4>Map Layers</h4>
-        <label><input type="checkbox" id="sheetMapCheckbox"> Sheet Map</label><br>
-        <label><input type="checkbox" id="parcelMapCheckbox" checked> Parcel Map</label>
-      `;
-      return div;
-    };
-
-    legend.addTo(map);
-
-    // Handle checkbox changes
-    document.getElementById('sheetMapCheckbox').addEventListener('change', function () {
-      if (this.checked) {
-        map.addLayer(geojsonLayer);
-      } else {
-        map.removeLayer(geojsonLayer);
-      }
-    });
-
-    document.getElementById('parcelMapCheckbox').addEventListener('change', function () {
-      if (this.checked && parcelLayer) {
-        map.addLayer(parcelLayer);
-      } else if (parcelLayer) {
-        map.removeLayer(parcelLayer);
-      }
-    });
-  })
-  .catch(error => console.error('Error loading GeoJSON:', error));
+// Create a split line based on direction
+function createSplitLine(bbox, direction) {
+  const [minX, minY, maxX, maxY] = bbox;
+  switch (direction) {
+    case 'north':
+      return turf.lineString([[minX, maxY], [maxX, maxY]]);
+    case 'south':
+      return turf.lineString([[minX, minY], [maxX, minY]]);
+    case 'east':
+      return turf.lineString([[maxX, minY], [maxX, maxY]]);
+    case 'west':
+      return turf.lineString([[minX, minY], [minX, maxY]]);
+    default:
+      return null;
+  }
+}
