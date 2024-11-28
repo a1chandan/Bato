@@ -1,66 +1,16 @@
-/* Style the map and make it responsive */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-#map-container {
-  flex: 1;
-  position: relative;
 }
 
 #map {
+  height: 600px;
   width: 100%;
-  height: 100%;
+  border: 1px solid #ccc;
 }
 
-#search-panel {
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.9);
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 1000;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+@media (max-width: 768px) {
+  #map {
+    height: 400px;
+  }
 }
-
-#search-panel h3 {
-  margin: 0 0 10px;
-}
-
-#search-panel form {
-  display: flex;
-  flex-direction: column;
-}
-
-#search-panel label, #search-panel input, #search-panel button {
-  margin-bottom: 5px;
-}
-
-button {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 5px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-.north-rose {
-  text-align: center;
-  margin-top: 10px;
-}
-.north-rose img {
-  width: 50px;
-  height: 50px;
-  opacity: 0.8;
-}
-
