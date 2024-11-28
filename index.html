@@ -1,33 +1,35 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web map test</title>
+  <title>Parcel Splitter</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="style.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
-  
 </head>
 <body>
-  <div id="map-container">
-    <div id="map"></div>
-  </div>
-  <div id="search-panel">
-    <h3>Search Parcel</h3>
-    <form id="search-form">
-      <label for="vdc">VDC:</label>
-      <input type="text" id="vdc" name="vdc" required>
-      <label for="wardno">Ward No:</label>
-      <input type="text" id="wardno" name="wardno" required>
-      <label for="parcelno">Parcel No:</label>
-      <input type="text" id="parcelno" name="parcelno" required>
-      <button type="submit">Search</button>
+  <div class="container mt-4">
+    <h1 class="text-center">Parcel Splitter</h1>
+    <form id="searchForm" class="row g-3">
+      <div class="col-md-4">
+        <input type="text" id="vdcInput" class="form-control" placeholder="VDC" required>
+      </div>
+      <div class="col-md-4">
+        <input type="text" id="wardNoInput" class="form-control" placeholder="Ward No" required>
+      </div>
+      <div class="col-md-4">
+        <input type="text" id="parcelNoInput" class="form-control" placeholder="Parcel No" required>
+      </div>
+      <div class="col-12 text-center">
+        <button type="submit" class="btn btn-primary">Search Parcel</button>
+      </div>
     </form>
+    <div id="map" class="mt-4"></div>
   </div>
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet-measure/2.3.0/leaflet-measure.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-measure/2.3.0/leaflet-measure.min.js"></script>
-  <script src="script.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.3/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/turf/6.5.0/turf.min.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
