@@ -42,41 +42,20 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-// Add drawing controls with Leaflet-Draw
-const drawnItems = new L.FeatureGroup();
-map.addLayer(drawnItems);
+// Add measurement tool using Leaflet.MeasurePath
+const measureControl = L.control.measurePath({
+  showDistances: true, // Display distance while drawing
+  showArea: false,     // Disable area measurement
+  imperial: true,      // Show distance in feet and miles
+  metric: true,        // Show distance in meters and kilometers
+  position: 'topleft'  // Place the control in the top-left corner
+}).addTo(map);
 
-const drawControl = new L.Control.Draw({
-  position: 'topright', // Place controls in the top-right corner
-  draw: {
-    polyline: {
-      metric: true,
-      feet: true,
-      showLength: true // Display length while drawing
-    },
-    polygon: false,
-    rectangle: false,
-    circle: false,
-    marker: false
-  }
+// Listen for events from the measurement tool
+map.on('measure-path:start', () => {
+  console.log('Measurement started');
 });
 
-map.addControl(drawControl);
-
-// Handle the drawn polyline for distance measurement
-map.on(L.Draw.Event.CREATED, (event) => {
-  const layer = event.layer;
-
-  if (layer instanceof L.Polyline) {
-    const latlngs = layer.getLatLngs();
-    let totalDistance = 0;
-
-    for (let i = 0; i < latlngs.length - 1; i++) {
-      totalDistance += latlngs[i].distanceTo(latlngs[i + 1]);
-    }
-
-    alert(`Total distance: ${totalDistance.toFixed(2)} meters (${(totalDistance * 3.28084).toFixed(2)} feet)`);
-  }
-
-  drawnItems.addLayer(layer);
+map.on('measure-path:end', () => {
+  console.log('Measurement completed');
 });
