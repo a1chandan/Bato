@@ -17,7 +17,6 @@ L.control.scale({
 // Variables to store the GeoJSON layers
 let geojsonLayer; // Full dataset (Sheet Map)
 let parcelLayer;  // Filtered dataset (Parcel Map)
-let mbtilesLayer; // MBTiles layer
 
 // Load GeoJSON data
 fetch('data/kolvi_1.json')
@@ -107,7 +106,6 @@ fetch('data/kolvi_1.json')
         <h4>Map Layers</h4>
         <label><input type="checkbox" id="sheetMapCheckbox"> Sheet Map</label><br>
         <label><input type="checkbox" id="parcelMapCheckbox" checked> Parcel Map</label><br>
-        <label><input type="checkbox" id="mbtilesLayerCheckbox" checked> MBTiles Layer</label>
       `;
       return div;
     };
@@ -130,25 +128,6 @@ fetch('data/kolvi_1.json')
       }
     });
 
-    document.getElementById('mbtilesLayerCheckbox').addEventListener('change', function () {
-      if (this.checked && mbtilesLayer) {
-        map.addLayer(mbtilesLayer);
-      } else if (mbtilesLayer) {
-        map.removeLayer(mbtilesLayer);
-      }
-    });
-
-    // Load the MBTiles layer
-    const mbtilesUrl = 'data/kolvi1.mbtiles';
-    fetch(mbtilesUrl)
-      .then(response => response.arrayBuffer())
-      .then(buffer => {
-        mbtilesLayer = L.tileLayer.mbTiles(buffer, {
-          attribution: 'MBTiles Layer',
-          opacity: 0.8
-        }).addTo(map);
-      })
-      .catch(error => console.error('Error loading MBTiles:', error));
 
   / Add scale bar
 L.control.scale({
