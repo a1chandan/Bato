@@ -30,7 +30,7 @@ fetch('data/kolvi_1.json')
       },
       style: {
         color: 'blue',
-        weight: 0.4
+        weight: 1
       }
     });
 
@@ -42,7 +42,7 @@ fetch('data/kolvi_1.json')
       },
       style: {
         color: 'red',
-        weight: 1
+        weight: 2
       }
     }).addTo(map);
 
@@ -63,7 +63,7 @@ fetch('data/kolvi_1.json')
         },
         style: {
           color: 'red',
-          weight: 1
+          weight: 2
         }
       }).addTo(map);
 
@@ -98,7 +98,7 @@ fetch('data/kolvi_1.json')
 
 // Add measurement tool
 map.pm.addControls({
-  position: 'bottomright',
+  position: 'topleft',
   drawMarker: false,
   drawPolygon: false,
   drawPolyline: true, // Enable polyline drawing for distance measurement
