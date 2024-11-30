@@ -1,7 +1,7 @@
 // Initialize the map
 const map = L.map('map').setView([27.7, 85.4], 14);
 
-// Add a base layer with transparency
+// Add a base layer
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   opacity: 0.7,
   attribution: '© OpenStreetMap contributors'
@@ -14,7 +14,7 @@ L.control.scale({
   imperial: true
 }).addTo(map);
 
-// Variables to store the GeoJSON layers
+// Variables for GeoJSON layers
 let geojsonLayer; // Full dataset (Sheet Map)
 let parcelLayer;  // Filtered dataset (Parcel Map)
 
@@ -22,9 +22,9 @@ let parcelLayer;  // Filtered dataset (Parcel Map)
 fetch('data/kolvi_1.json')
   .then(response => response.json())
   .then(data => {
-    // Add the full GeoJSON data as the Sheet Map
+    // Add the full GeoJSON data
     geojsonLayer = L.geoJSON(data, {
-      onEachFeature: function (feature, layer) {
+      onEachFeature: (feature, layer) => {
         const { VDC, WARDNO, PARCELNO } = feature.properties;
         layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
       },
@@ -34,9 +34,9 @@ fetch('data/kolvi_1.json')
       }
     });
 
-    // Add the Parcel Map (filtered layer) initially showing all data
+    // Add filtered GeoJSON data (Parcel Map)
     parcelLayer = L.geoJSON(data, {
-      onEachFeature: function (feature, layer) {
+      onEachFeature: (feature, layer) => {
         const { VDC, WARDNO, PARCELNO } = feature.properties;
         layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
       },
@@ -46,10 +46,10 @@ fetch('data/kolvi_1.json')
       }
     }).addTo(map);
 
-    // Fit the map to the bounds of all parcels initially
+    // Fit to the bounds of all parcels initially
     map.fitBounds(parcelLayer.getBounds());
 
-    // Function to filter data based on query and display only the filtered parcels
+    // Filter data based on query
     const displayFilteredData = (filterFunction) => {
       if (parcelLayer) {
         map.removeLayer(parcelLayer);
@@ -57,7 +57,7 @@ fetch('data/kolvi_1.json')
 
       parcelLayer = L.geoJSON(data, {
         filter: filterFunction,
-        onEachFeature: function (feature, layer) {
+        onEachFeature: (feature, layer) => {
           const { VDC, WARDNO, PARCELNO } = feature.properties;
           layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
         },
@@ -74,6 +74,7 @@ fetch('data/kolvi_1.json')
       }
     };
 
+    // Add search functionality
     document.getElementById('search-form').addEventListener('submit', function (e) {
       e.preventDefault();
 
@@ -83,65 +84,24 @@ fetch('data/kolvi_1.json')
 
       const filterFunction = (feature) => {
         const { VDC, WARDNO, PARCELNO } = feature.properties;
-        const normalizedVDC = vdc.trim() === '' ? null : parseInt(vdc.trim(), 10);
-        const normalizedWARDNO = wardno.trim() === '' ? null : wardno.trim();
-        const normalizedPARCELNO = parcelno.trim() === '' ? null : parseInt(parcelno.trim(), 10);
-
         return (
-          (normalizedVDC === null || VDC === normalizedVDC) &&
-          (normalizedWARDNO === null || WARDNO === normalizedWARDNO) &&
-          (normalizedPARCELNO === null || PARCELNO === normalizedPARCELNO)
+          (!vdc || VDC == vdc) &&
+          (!wardno || WARDNO == wardno) &&
+          (!parcelno || PARCELNO == parcelno)
         );
       };
 
       displayFilteredData(filterFunction);
     });
+  })
+  .catch(error => console.error('Error loading GeoJSON:', error));
 
-    // Create a legend with checkboxes
-    const legend = L.control({ position: 'topright' });
-
-    legend.onAdd = function () {
-      const div = L.DomUtil.create('div', 'legend');
-      div.innerHTML = `
-        <h4>Map Layers</h4>
-        <label><input type="checkbox" id="sheetMapCheckbox"> Sheet Map</label><br>
-        <label><input type="checkbox" id="parcelMapCheckbox" checked> Parcel Map</label><br>
-      `;
-      return div;
-    };
-
-    legend.addTo(map);
-
-    document.getElementById('sheetMapCheckbox').addEventListener('change', function () {
-      if (this.checked) {
-        map.addLayer(geojsonLayer);
-      } else {
-        map.removeLayer(geojsonLayer);
-      }
-    });
-
-    document.getElementById('parcelMapCheckbox').addEventListener('change', function () {
-      if (this.checked && parcelLayer) {
-        map.addLayer(parcelLayer);
-      } else if (parcelLayer) {
-        map.removeLayer(parcelLayer);
-      }
-    });
-
-
-  / Add scale bar
-L.control.scale({
-  position: 'bottomleft',
-  metric: true,
-  imperial: true
-}).addTo(map);
-
-// Add distance measurement tool using Leaflet.pm
+// Add measurement tool
 map.pm.addControls({
-  position: 'bottomright',
+  position: 'topleft',
   drawMarker: false,
   drawPolygon: false,
-  drawPolyline: true, // Enable polyline drawing
+  drawPolyline: true, // Enable polyline drawing for distance measurement
   drawRectangle: false,
   drawCircle: false,
   editMode: false,
@@ -150,13 +110,7 @@ map.pm.addControls({
   removalMode: false
 });
 
-// Listen for distance measurement events
-map.on('pm:drawstart', (e) => {
-  if (e.shape === 'Line') {
-    console.log('Started measuring distance');
-  }
-});
-
+// Listen for distance measurement completion
 map.on('pm:create', (e) => {
   if (e.layer instanceof L.Polyline) {
     const latlngs = e.layer.getLatLngs();
@@ -167,6 +121,6 @@ map.on('pm:create', (e) => {
     }
 
     alert(`Total distance: ${totalDistance.toFixed(2)} meters (${(totalDistance * 3.28084).toFixed(2)} feet)`);
-    map.removeLayer(e.layer); // Remove the measurement layer after showing the result
+    map.removeLayer(e.layer); // Remove the drawn layer
   }
 });
