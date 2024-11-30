@@ -98,7 +98,7 @@ fetch('data/kolvi_1.json')
 
 // Add measurement tool
 map.pm.addControls({
-  position: 'topleft',
+  position: 'bottomright',
   drawMarker: false,
   drawPolygon: false,
   drawPolyline: true, // Enable polyline drawing for distance measurement
