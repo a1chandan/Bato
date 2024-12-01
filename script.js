@@ -42,21 +42,3 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-// Add measurement tool using Leaflet.MeasurePath
-const measureControl = new L.Control.Measure({
-  primaryLengthUnit: 'meters',
-  secondaryLengthUnit: 'feet',
-  primaryAreaUnit: 'sqmeters',
-  position: 'bottomright'
-});
-map.addControl(measureControl);
-
-
-// Listen for events from the measurement tool
-map.on('measure-path:start', () => {
-  console.log('Measurement started');
-});
-
-map.on('measure-path:end', () => {
-  console.log('Measurement completed');
-});
