@@ -1,17 +1,10 @@
 // Initialize the map
 const map = L.map('map').setView([27.7, 85.4], 14);
 
-// Add a base layer
+// Add a base layer with transparency
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   opacity: 0.7,
   attribution: '© OpenStreetMap contributors'
-}).addTo(map);
-
-// Add a scale bar
-L.control.scale({
-  position: 'bottomleft',
-  metric: true,
-  imperial: true
 }).addTo(map);
 
 // Variables to store the GeoJSON layers
@@ -134,5 +127,3 @@ fetch('data/kolvi_1.json')
     });
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
-  .catch(error => console.error('Error loading GeoJSON:', error));
-
