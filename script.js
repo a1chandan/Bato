@@ -128,12 +128,11 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-// Add the measure tool
-        var measureControl = new L.Control.Measure({
-            position: 'bottomright',
-            primaryLengthUnit: 'meters',
-            secondaryLengthUnit: 'feet',
-            primaryAreaUnit: 'sqmeters',
-            secondaryAreaUnit: 'hectares'
-        });
-        map.addControl(measureControl);
+   // Add the PolylineMeasure control
+    L.control.polylineMeasure({
+        position: 'topleft',
+        unit: 'metres', // Change to 'feet', 'miles', etc., if needed
+        clearMeasurementsOnStop: false,
+        showBearings: true,
+        measureControlLabel: '📏'
+    }).addTo(map);
