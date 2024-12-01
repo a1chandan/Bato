@@ -130,7 +130,7 @@ fetch('data/kolvi_1.json')
 
    // Add the PolylineMeasure control
     L.control.polylineMeasure({
-        position: 'topleft',
+        position: 'bottomleft',
         unit: 'metres', // Change to 'feet', 'miles', etc., if needed
         clearMeasurementsOnStop: false,
         showBearings: true,
