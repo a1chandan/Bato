@@ -127,3 +127,13 @@ fetch('data/kolvi_1.json')
     });
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
+
+// Add the measure tool
+        var measureControl = new L.Control.Measure({
+            position: 'bottomright',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'feet',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        map.addControl(measureControl);
