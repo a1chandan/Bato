@@ -23,7 +23,7 @@ fetch('data/kolvi_1.json')
   .then(response => response.json())
   .then(data => {
     geojsonLayer = L.geoJSON(data, {
-      style: { color: 'blue', weight: 1 },
+      style: { color: 'blue', weight: 0.4 },
       onEachFeature: (feature, layer) => {
         const { VDC, WARDNO, PARCELNO } = feature.properties;
         layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
@@ -31,7 +31,7 @@ fetch('data/kolvi_1.json')
     });
 
     parcelLayer = L.geoJSON(data, {
-      style: { color: 'red', weight: 2 },
+      style: { color: 'red', weight: 1 },
       onEachFeature: (feature, layer) => {
         const { VDC, WARDNO, PARCELNO } = feature.properties;
         layer.bindPopup(`VDC: ${VDC}<br>Ward No: ${WARDNO}<br>Parcel No: ${PARCELNO}`);
@@ -47,7 +47,7 @@ const measureControl = new L.Control.Measure({
   primaryLengthUnit: 'meters',
   secondaryLengthUnit: 'feet',
   primaryAreaUnit: 'sqmeters',
-  position: 'topleft'
+  position: 'bottomright'
 });
 map.addControl(measureControl);
 
