@@ -43,13 +43,14 @@ fetch('data/kolvi_1.json')
   .catch(error => console.error('Error loading GeoJSON:', error));
 
 // Add measurement tool using Leaflet.MeasurePath
-const measureControl = L.control.measurePath({
-  showDistances: true, // Display distance while drawing
-  showArea: false,     // Disable area measurement
-  imperial: true,      // Show distance in feet and miles
-  metric: true,        // Show distance in meters and kilometers
-  position: 'topleft'  // Place the control in the top-left corner
-}).addTo(map);
+const measureControl = new L.Control.Measure({
+  primaryLengthUnit: 'meters',
+  secondaryLengthUnit: 'feet',
+  primaryAreaUnit: 'sqmeters',
+  position: 'topleft'
+});
+map.addControl(measureControl);
+
 
 // Listen for events from the measurement tool
 map.on('measure-path:start', () => {
