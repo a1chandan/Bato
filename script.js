@@ -1,5 +1,7 @@
 // Initialize the map
-const map = L.map('map').setView([27.7, 85.4], 14);
+const map = L.map('map',{
+   crs: L.CRS.EPSG4326 // Adjust to match data's CRS
+}).setView([27.7, 85.4], 14);
 
 // Add a base layer with transparency
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
