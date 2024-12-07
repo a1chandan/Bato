@@ -130,11 +130,10 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-// Add distance measurement
- L.control.measure({
+L.control.polylineMeasure({
     position: 'bottomleft',
-    primaryLengthUnit: 'meters',
-    secondaryLengthUnit: 'feet',
-    activeColor: '#FF0000', // Active measurement color
-    completedColor: '#00FF00' // Completed measurement color
+    unit: 'metres',
+    clearMeasurementsOnStop: false,
+    showBearings: false,
+    snappingTolerance: 0 // Disable snapping
 }).addTo(map);
