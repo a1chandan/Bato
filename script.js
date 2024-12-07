@@ -130,11 +130,11 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-   // Add the PolylineMeasure control
-    L.control.polylineMeasure({
-        position: 'bottomleft',
-        unit: 'metres', // Change to 'feet', 'miles', etc., if needed
-        clearMeasurementsOnStop: false,
-        showBearings: true,
-        measureControlLabel: '📏'
-    }).addTo(map);
+// Add distance measurement
+ L.control.measure({
+    position: 'bottomleft',
+    primaryLengthUnit: 'meters',
+    secondaryLengthUnit: 'feet',
+    activeColor: '#FF0000', // Active measurement color
+    completedColor: '#00FF00' // Completed measurement color
+}).addTo(map);
