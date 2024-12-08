@@ -138,17 +138,3 @@ L.control.polylineMeasure({
     showBearings: false,
     snappingTolerance: 0 // Disable snapping
 }).addTo(map);
-
-map.eachLayer(function(layer) {
-    if (layer.options && layer.options.interactive) {
-        layer.options.interactive = false;
-    }
-});
-
-map.on('measure:stop', function() {
-    map.eachLayer(function(layer) {
-        if (layer.options && typeof layer.options.interactive !== 'undefined') {
-            layer.options.interactive = true;
-        }
-    });
-});
