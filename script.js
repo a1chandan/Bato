@@ -130,10 +130,26 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-L.control.polylineMeasure({
-    position: 'bottomleft',
-    unit: 'metres',
-    clearMeasurementsOnStop: false,
-    showBearings: false,
-    snappingTolerance: 0 // Disable snapping
-}).addTo(map);
+
+  L.control.polylineMeasure({
+            position: 'topleft',
+            unit: 'feet', // Set unit to feet
+            measureControlTitle: 'Open/close control', // Mouse-over text for the control
+            measureControlLabel: '&#x1F4CF;', // Unicode ruler icon for the control button
+            measureControlClasses: [], // Style classes to apply to the control
+            showMeasurementsClearControl: true,  // Show a control to clear measurements
+            clearControlTitle: 'Clear measurements', // Mouse-over text for the clear control
+            clearControlLabel: '&times;', // Unicode 'times' icon for the clear control
+            clearControlClasses: [], // Additional classes for the clear control
+            showUnitControl: true, // Show unit control to allow user to change between feet and miles
+            tempLine: { // Styling for the temporary line displayed when creating measurements
+                color: '#00f', // Line color
+                weight: 2 // Line weight
+            },
+            fixedLine: { // Styling for lines that are fixed on the map
+                color: '#006', // Line color
+                weight: 2 // Line weight
+            }
+        }).addTo(map);
+
+
