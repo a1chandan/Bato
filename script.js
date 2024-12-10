@@ -132,7 +132,7 @@ fetch('data/kolvi_1.json')
 
 
   L.control.polylineMeasure({
-            position: 'topleft',
+            position: 'bottomright',
             unit: 'feet', // Set unit to feet
             measureControlTitle: 'Open/close control', // Mouse-over text for the control
             measureControlLabel: '&#x1F4CF;', // Unicode ruler icon for the control button
