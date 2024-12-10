@@ -53,3 +53,17 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+.leaflet-measure-tooltip, .leaflet-measure-tooltip-single {
+    background: rgba(255, 255, 255, 0.8); // Semi-transparent white background
+    border: 1px solid #ddd; // Light grey border
+    border-radius: 4px; // Rounded corners
+    color: #333; // Dark grey text for readability
+    font-size: 14px; // Adjust font size as needed
+    padding: 4px 8px; // Padding inside the tooltip
+}
+
+.leaflet-control {
+    z-index: 1000; // Ensures controls are above other elements
+}
+
