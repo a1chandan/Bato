@@ -138,31 +138,38 @@ fetch('data/kolvi_1.json')
                     shapeOptions: {
                         color: 'blue',
                         weight: 4
-                    }
+                    },
+                    showLength: true,
+                    metric: false,  // Default is true, set false for imperial units (feet)
+                    feet: true,  // Show in feet (imperial units)
+                    nautic: false // Not nautical miles
                 },
                 polygon: false,
                 rectangle: false,
                 circle: false,
                 marker: false
+            },
+            edit: {
+                featureGroup: drawnItems,
+                remove: true
             }
         });
         map.addControl(drawControl);
 
-        // Event listener for completed drawings
         map.on('draw:created', function (e) {
-            var layer = e.layer;
-            map.addLayer(layer); // Add the drawn layer to the map
+            drawnItems.clearLayers();  // Clear previous layers
+            var type = e.layerType,
+                layer = e.layer;
 
-            if (e.layerType === 'polyline') {
+            if (type === 'polyline') {
                 var distance = 0;
                 var latlngs = layer.getLatLngs();
-
-                // Calculate the distance in feet
                 for (var i = 0; i < latlngs.length - 1; i++) {
                     distance += latlngs[i].distanceTo(latlngs[i + 1]);
                 }
                 distance = distance * 3.28084; // Convert meters to feet
-
                 alert('Total distance: ' + distance.toFixed(2) + ' feet');
             }
+
+            drawnItems.addLayer(layer); // Add layer to the global feature group
         });
