@@ -130,26 +130,35 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-
-  L.control.polylineMeasure({
-            position: 'bottomleft',
-            unit: 'feet', // Set unit to feet
-            measureControlTitle: 'Open/close control', // Mouse-over text for the control
-            measureControlLabel: '&#x1F4CF;', // Unicode ruler icon for the control button
-            measureControlClasses: [], // Style classes to apply to the control
-            showMeasurementsClearControl: true,  // Show a control to clear measurements
-            clearControlTitle: 'Clear measurements', // Mouse-over text for the clear control
-            clearControlLabel: '&times;', // Unicode 'times' icon for the clear control
-            clearControlClasses: [], // Additional classes for the clear control
-            showUnitControl: true, // Show unit control to allow user to change between feet and miles
-            tempLine: { // Styling for the temporary line displayed when creating measurements
-                color: '#00f', // Line color
-                weight: 2 // Line weight
+ // Add Leaflet.Draw toolbar
+    var drawControl = new L.Control.Draw({
+        draw: {
+            polyline: {
+                shapeOptions: {
+                    color: 'red',
+                    weight: 4
+                }
             },
-            fixedLine: { // Styling for lines that are fixed on the map
-                color: '#006', // Line color
-                weight: 2 // Line weight
+            polygon: false,
+            rectangle: false,
+            circle: false,
+            marker: false
+        }
+    });
+    map.addControl(drawControl);
+
+    // Listen for draw events to calculate distances
+    map.on('draw:created', function(e) {
+        var layer = e.layer;
+        if (e.layerType === 'polyline') {
+            var distance = 0;
+            var latlngs = layer.getLatLngs();
+
+            for (var i = 0; i < latlngs.length - 1; i++) {
+                distance += latlngs[i].distanceTo(latlngs[i + 1]);
             }
-        }).addTo(map);
 
-
+            alert('Total distance: ' + (distance / 1000).toFixed(2) + ' km');
+        }
+        layer.addTo(map);
+    });
