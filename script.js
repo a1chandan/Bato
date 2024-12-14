@@ -130,35 +130,38 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
- // Add Leaflet.Draw toolbar
-    var drawControl = new L.Control.Draw({
-        draw: {
-            polyline: {
-                shapeOptions: {
-                    color: 'red',
-                    weight: 4
-                }
-            },
-            polygon: false,
-            rectangle: false,
-            circle: false,
-            marker: false
-        }
-    });
-    map.addControl(drawControl);
-
-    // Listen for draw events to calculate distances
-    map.on('draw:created', function(e) {
-        var layer = e.layer;
-        if (e.layerType === 'polyline') {
-            var distance = 0;
-            var latlngs = layer.getLatLngs();
-
-            for (var i = 0; i < latlngs.length - 1; i++) {
-                distance += latlngs[i].distanceTo(latlngs[i + 1]);
+       // Add Leaflet.Draw control for drawing polylines
+        var drawControl = new L.Control.Draw({
+            draw: {
+                polyline: {
+                    shapeOptions: {
+                        color: 'blue',
+                        weight: 4
+                    }
+                },
+                polygon: false,
+                rectangle: false,
+                circle: false,
+                marker: false
             }
+        });
+        map.addControl(drawControl);
 
-            alert('Total distance: ' + (distance / 1000).toFixed(2) + ' km');
-        }
-        layer.addTo(map);
-    });
+        // Event listener for completed drawings
+        map.on('draw:created', function (e) {
+            var layer = e.layer;
+            map.addLayer(layer); // Add the drawn layer to the map
+
+            if (e.layerType === 'polyline') {
+                var distance = 0;
+                var latlngs = layer.getLatLngs();
+
+                // Calculate the distance in feet
+                for (var i = 0; i < latlngs.length - 1; i++) {
+                    distance += latlngs[i].distanceTo(latlngs[i + 1]);
+                }
+                distance = distance * 3.28084; // Convert meters to feet
+
+                alert('Total distance: ' + distance.toFixed(2) + ' feet');
+            }
+        });
