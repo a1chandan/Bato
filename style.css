@@ -54,7 +54,13 @@ button:hover {
   background-color: #0056b3;
 }
 
-   .leaflet-editing-icon {
+ /* Style for the vertices */
+leaflet-div-icon {
+            background: transparent;
+            border: none;
+        }
+
+leaflet-editing-icon {
             width: 8px;
             height: 8px;
             border-radius: 50%;
