@@ -130,46 +130,67 @@ fetch('data/kolvi_1.json')
   })
   .catch(error => console.error('Error loading GeoJSON:', error));
 
-       // Add Leaflet.Draw control for drawing polylines
-        var drawControl = new L.Control.Draw({
-            position: 'bottomleft',  // Positioning the control at the bottom left
-            draw: {
-                polyline: {
-                    shapeOptions: {
-                        color: 'blue',
-                        weight: 4
-                    },
-                    showLength: true,
-                    metric: false,  // Default is true, set false for imperial units (feet)
-                    feet: true,  // Show in feet (imperial units)
-                    nautic: false // Not nautical miles
-                },
-                polygon: false,
-                rectangle: false,
-                circle: false,
-                marker: false
+    // Adding the graphical scale bar
+L.control.scale({
+    maxwidth: 200,
+    metric: true,
+    imperial: true,
+    updateWhenIdle: false
+}).addTo(map);
+
+var drawnItems = new L.FeatureGroup();
+map.addLayer(drawnItems);
+
+var drawControl = new L.Control.Draw({
+   position: 'bottomleft'
+    draw: {
+        polyline: {
+            shapeOptions: {
+                color: 'blue',
+                weight: 4
             },
-            edit: {
-                featureGroup: drawnItems,
-                remove: true
-            }
-        });
-        map.addControl(drawControl);
+            showLength: true,
+            metric: false,
+            feet: true,
+            nautic: false
+        },
+        polygon: false,
+        rectangle: false,
+        circle: false,
+        marker: false
+    },
+    edit: {
+        featureGroup: drawnItems,
+        remove: true
+    }
+});
+map.addControl(drawControl);
 
-        map.on('draw:created', function (e) {
-            drawnItems.clearLayers();  // Clear previous layers
-            var type = e.layerType,
-                layer = e.layer;
+map.on('draw:created', function (e) {
+    drawnItems.clearLayers();  
+    var type = e.layerType,
+        layer = e.layer;
 
-            if (type === 'polyline') {
-                var distance = 0;
-                var latlngs = layer.getLatLngs();
-                for (var i = 0; i < latlngs.length - 1; i++) {
-                    distance += latlngs[i].distanceTo(latlngs[i + 1]);
-                }
-                distance = distance * 3.28084; // Convert meters to feet
-                alert('Total distance: ' + distance.toFixed(2) + ' feet');
-            }
+    if (type === 'polyline') {
+        var distance = 0;
+        var latlngs = layer.getLatLngs();
+        for (var i = 0; i < latlngs.length - 1; i++) {
+            distance += latlngs[i].distanceTo(latlngs[i + 1]);
+        }
+        distance = distance * 3.28084;
+        alert('Total distance: ' + distance.toFixed(2) + ' feet');
+    }
 
-            drawnItems.addLayer(layer); // Add layer to the global feature group
-        });
+    drawnItems.addLayer(layer);
+});
+
+function updateNumericScale() {
+    var y = map.getSize().y / 2;
+    var x = map.getSize().x / 2;
+    var maxMeters = map.distance(map.containerPointToLatLng([0, y]), map.containerPointToLatLng([x, y]));
+    var scale = 1 / (maxMeters / (map.getSize().x / 2));
+    document.getElementById('numeric-scale').innerHTML = 'Scale: 1:' + Math.round(scale);
+}
+
+map.on('zoomend', updateNumericScale);
+updateNumericScale(); // Initial update on page load
