@@ -132,6 +132,7 @@ fetch('data/kolvi_1.json')
 
        // Add Leaflet.Draw control for drawing polylines
         var drawControl = new L.Control.Draw({
+            position: 'bottomleft',  // Positioning the control at the bottom left
             draw: {
                 polyline: {
                     shapeOptions: {
